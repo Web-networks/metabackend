@@ -5,9 +5,11 @@ with open('../../yandex-credentials.json') as credentials:
     credentials = json.load(credentials)
 
 session = boto3.session.Session()
+
 s3 = session.client(
     service_name='s3',
     endpoint_url='https://storage.yandexcloud.net',
+    config=boto3.session.Config(region_name='ru-central1'),
     **credentials
 )
 
