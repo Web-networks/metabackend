@@ -11,16 +11,19 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data')
-
+DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(DIR, 'data')
+CONFIGURATION_DIR = os.path.join(DIR, 'conf')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'vh4^nq^aq6tl&v-y*z$l6)nd%-zcglp&picxjmvcjl)ewa^90('
+with open(os.path.join(CONFIGURATION_DIR, 'secret')) as s:
+    SECRET_KEY = s.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -28,7 +31,6 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '0.0.0.0'
 ]
-
 
 # Application definition
 
@@ -40,14 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'data_storage',
+    'data_storage.apps.DataStorageConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -73,17 +75,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'metabackend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(DATA_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -103,7 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -117,8 +116,32 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# S3 settings
+
+def load_json(path):
+    with open(path) as data_file:
+        return json.load(data_file)
+
+
+# {
+#   "aws_access_key_id": "cMZ-FVjIehcgS4YmXuGI",
+#   "aws_secret_access_key": "ut*******"
+# }
+S3_CREDENTIALS = load_json(os.path.join(CONFIGURATION_DIR, 'aws_credentials.json'))
+
+# {
+#   "bucket": "code-testing",
+#   "endpoint_url": "https://storage.yandexcloud.net",
+#   "region_name": "ru-central1"
+# }
+S3_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'aws_config.json'))
+
+S3_ENDPOINT = S3_CONFIG.pop('endpoint_url')
+S3_BUCKET = S3_CONFIG.pop('bucket')
+S3_CREDENTIALS['endpoint_url'] = S3_ENDPOINT
