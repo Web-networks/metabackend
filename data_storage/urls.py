@@ -6,7 +6,7 @@ from rest_framework import routers, serializers, viewsets
 class NeuralModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.NeuralModel
-        fields = ['id', 'user_id', 'execution_code_url']
+        fields = '__all__'
 
 
 class NeuralModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -17,7 +17,7 @@ class NeuralModelViewSet(viewsets.ReadOnlyModelViewSet):
 class UserInputSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.UserInput
-        fields = ['id', 'user_id', 'data_url']
+        fields = '__all__'
 
 
 class UserInputViewSet(viewsets.ReadOnlyModelViewSet):
@@ -28,7 +28,7 @@ class UserInputViewSet(viewsets.ReadOnlyModelViewSet):
 class TrainingTaskSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.TrainingTask
-        fields = ['id', 'user_id', 'model', 'user_input', 'parameters', 'status', 'error_message', 'result_url']
+        fields = '__all__'
 
 
 class TrainingTaskViewSet(viewsets.ReadOnlyModelViewSet):

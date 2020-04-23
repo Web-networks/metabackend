@@ -188,7 +188,8 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 #     'redis_socket_connect_timeout': 0.1,
 # }
 
-#: Only add pickle to this list if your broker is secured
-#: from unwanted access (see userguide/security.html)
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+# execution-system settings
+EXECUTION_SYSTEM_BASE_URL = 'http://localhost:8090'

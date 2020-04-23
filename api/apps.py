@@ -1,9 +1,14 @@
 import boto3
+import requests
+import requests.adapters
 
 from django.apps import AppConfig
 from django.conf import settings
 
 from api import s3
+
+EXECUTION_SYSTEM_BASE_URL = ''
+EXECUTION_SYSTEM_SESSION = requests.Session()
 
 
 class ApiConfig(AppConfig):
@@ -19,3 +24,11 @@ class ApiConfig(AppConfig):
 
         s3.S3_ENDPOINT = settings.S3_ENDPOINT
         s3.S3_BUCKET = settings.S3_BUCKET
+
+        execution_system_session = requests.Session()
+        execution_system_session.mount('http://', requests.adapters.HTTPAdapter(max_retries=3))
+
+        global EXECUTION_SYSTEM_SESSION
+        EXECUTION_SYSTEM_SESSION = execution_system_session
+        global EXECUTION_SYSTEM_BASE_URL
+        EXECUTION_SYSTEM_BASE_URL = settings.EXECUTION_SYSTEM_BASE_URL
