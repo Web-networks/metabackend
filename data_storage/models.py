@@ -17,6 +17,7 @@ class UserInput(models.Model):
 
 
 class TrainingTask(models.Model):
+    INITIAL = 'INITIAL'
     WAITING = 'WAITING'
     RUNNING = 'RUNNING'
     REJECTED = 'REJECTED'
@@ -24,6 +25,7 @@ class TrainingTask(models.Model):
     SUCCEEDED = 'SUCCEEDED'
 
     STATUS_CHOICES = [
+        (INITIAL, 'Initial'),
         (WAITING, 'Waiting'),
         (RUNNING, 'Running'),
         (REJECTED, 'Rejected'),

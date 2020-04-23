@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
+from copy import deepcopy
 import json
+import os
+
+from kombu.utils.url import as_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -135,15 +138,57 @@ def load_json(path):
 #   "aws_access_key_id": "cMZ-FVjIehcgS4YmXuGI",
 #   "aws_secret_access_key": "ut*******"
 # }
-S3_CREDENTIALS = load_json(os.path.join(CONFIGURATION_DIR, 'aws_credentials.json'))
+AWS_CREDENTIALS = load_json(os.path.join(CONFIGURATION_DIR, 'aws_credentials.json'))
 
 # {
 #   "bucket": "code-testing",
 #   "endpoint_url": "https://storage.yandexcloud.net",
 #   "region_name": "ru-central1"
 # }
-S3_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'aws_config.json'))
+S3_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'aws_s3_config.json'))
 
 S3_ENDPOINT = S3_CONFIG.pop('endpoint_url')
 S3_BUCKET = S3_CONFIG.pop('bucket')
+S3_CREDENTIALS = deepcopy(AWS_CREDENTIALS)
 S3_CREDENTIALS['endpoint_url'] = S3_ENDPOINT
+
+# Celery settings
+
+# {
+#   "endpoint": "message-queue.api.cloud.yandex.net",
+#   "region_name": "ru-central1"
+# }
+SQS_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'aws_sqs_config.json'))
+
+CELERY_BROKER_URL = as_url(
+    'sqs',
+    host=SQS_CONFIG['host'], port=SQS_CONFIG['port'],
+    user=AWS_CREDENTIALS.get('aws_access_key_id'), password=AWS_CREDENTIALS.get('aws_secret_access_key'),
+)
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'region': SQS_CONFIG['region_name'],
+    'queue_name_prefix': 'celery-',
+    'visibility_timeout': 30,
+    'is_secure': True,
+}
+
+# {
+#   "host": "localhost",
+#   "port": 6379
+# }
+# Don't using now
+# REDIS_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'redis_config.json'))
+# CELERY_RESULT_BACKEND = as_url(
+#     'redis',
+#     host=REDIS_CONFIG['host'], port=REDIS_CONFIG['port'],
+#     password=REDIS_CONFIG.get('password')
+# )
+# CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
+#     'redis_socket_connect_timeout': 0.1,
+# }
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
