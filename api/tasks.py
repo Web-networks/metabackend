@@ -21,6 +21,7 @@ def wait_train_task(task_id):
         try:
             execution_system_api.start_learning_task(task)
         except Exception:
+            logger.exception('Task FAILED')
             task.status = models.TrainingTask.FAILED
             task.error_message = traceback.format_exc(limit=4096)
             task.save()

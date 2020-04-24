@@ -32,7 +32,7 @@ with open(os.path.join(CONFIGURATION_DIR, 'secret')) as s:
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '0.0.0.0'
+    '0.0.0.0',
 ]
 
 # Application definition
