@@ -112,3 +112,20 @@ def start_train_task(request):
     task.save()
     on_commit(lambda: celery_tasks.wait_train_task.apply_async(args=(task.id,)))
     return JsonResponse({'task_id': task.id})
+
+
+@catch_client_error
+def upload_user_input(request):
+    user_id = get_user_id(request)
+    user_input_id = str(uuid.uuid4())
+    s3_key = 'user_input_' + user_input_id
+    s3.upload_multipart_data(s3_key, request.FILES['file'])
+
+    user_input = models.UserInput(
+        id=user_input_id,
+        user_id=user_id,
+        data_url=s3.generate_url(s3_key),
+    )
+
+    user_input.save()
+    return JsonResponse({'user_input_id': user_input.id})
