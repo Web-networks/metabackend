@@ -1,0 +1,52 @@
+{% macro gen_parse_field_snippet(name, schema, source, target) %}
+  {# % do print('parse_field', name, shema, source, target) % #}
+  {% if schema is none %}
+    | {{target}} = {{source}}
+  {% else %}
+    {% set ref = schema.get('$ref', None) %}
+    {% if ref is none %}
+      {% set type = schema['type'] %}
+      {% if type == 'object' %}
+        {% set properties = schema.get('properties', None) %}
+        {% if properties is none %}
+          | {{target}} = {{source}}
+        {% else %}
+          {% if target != 'self' %}
+            | {{target}} = {{name}}()
+          {% endif %}
+          {% for (field_name, field_schema) in properties.items(): %}
+            {% set field_source = source + '["' + field_name + '"]' %}
+            | {{ gen_parse_field_snippet(
+                  name + '__' + field_name,
+                  field_schema, field_source, target + '.' + field_name) }}
+          {% endfor %}
+        {% endif %}
+      {% elif type == 'array' %}
+        | {{target}} = []
+        {% set item_schema = schema.get('items', None) %}
+        {% set item = 'item' %}
+        {% set parsed_item = 'parsed_item' %}
+        | for {{item}} in {{source}}:
+          < {{ gen_parse_field_snippet(
+                name, item_schema, item, parsed_item) }}
+          | {{target}}.append({{parsed_item}})
+          >
+      {% else %}
+        | {{target}} = {{source}}
+      {% endif %}
+    {% else %}
+      | {{target}} = {{ ref[ref.rfind('/')+1:] }} ({{source}})
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+{% macro gen_class(name, schema) %}
+| class {{name}}(neurogen.GeneratedClassBase):
+  < def __init__(self, obj):
+    < {{ gen_parse_field_snippet(name, schema, 'obj', 'self') }}
+    >
+  >
+{% endmacro %}
+
+
+{{ gen_class(name, schema) }}

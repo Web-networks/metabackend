@@ -47,8 +47,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
-    'data_storage.apps.DataStorageConfig',
     'api.apps.ApiConfig',
+    'codegen.apps.CodegenConfig',
+    'data_storage.apps.DataStorageConfig',
 ]
 
 MIDDLEWARE = [

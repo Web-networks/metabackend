@@ -11,6 +11,8 @@ from data_storage import models
 from api import s3
 from api import tasks as celery_tasks
 
+from codegen import models as codegen
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,13 +50,13 @@ def get_user_id(request):
 
 
 def generate_code(model_schema):
-    return 'BEST CODE EVER'
+    return codegen.generate_tar_archive(model_schema)
 
 
 @catch_client_error
 def create_model(request):
     user_id = get_user_id(request)
-    code = generate_code(request.body)
+    code = generate_code(json.loads(request.body))
     model_id = str(uuid.uuid4())
     s3_key = 'model_' + model_id
     s3.upload_object(s3_key, code)

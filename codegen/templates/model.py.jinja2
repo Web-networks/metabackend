@@ -1,0 +1,19 @@
+{% macro render_params(params) %}
+  {% for k, v in params.items() %}
+    {{ k + '=' + repr(v) }},
+  {% endfor %}
+{% endmacro %}
+
+| from keras.models import Sequential
+{# TODO: deal with repeated imports #}
+{% for layer in model.layers %}
+| from keras.layers.core import {{ layer.type }}
+{% endfor %}
+|
+| def init_model():
+  < model = Sequential()
+  {% for layer in model.layers %}
+    | model.add( {{layer.type}}( {{render_params(layer.params)}} ))
+  {% endfor %}
+  | return model
+ >
