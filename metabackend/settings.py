@@ -22,6 +22,14 @@ DATA_DIR = os.path.join(DIR, 'data')
 CONFIGURATION_DIR = os.path.join(DIR, 'conf')
 STATIC_ROOT = os.path.join(DIR, 'static')
 
+
+def load_json(path, optional=False):
+    if optional and not os.path.exists(path):
+        return None
+    with open(path) as data_file:
+        return json.load(data_file)
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -93,6 +101,14 @@ DATABASES = {
     }
 }
 
+POSTGRES_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'postgres_config.json'), optional=True)
+if POSTGRES_CONFIG:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    }
+    for k, v in POSTGRES_CONFIG.items():
+        DATABASES['default'][k.upper()] = v
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -159,13 +175,7 @@ LOGGING = {
     },
 }
 
-
 # S3 settings
-
-def load_json(path):
-    with open(path) as data_file:
-        return json.load(data_file)
-
 
 # {
 #   "aws_access_key_id": "cMZ-FVjIehcgS4YmXuGI",
