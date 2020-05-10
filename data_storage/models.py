@@ -5,13 +5,13 @@ from django.db import models
 
 
 class NeuralModel(models.Model):
-    id = models.CharField(primary_key=True, max_length=30)
+    id = models.CharField(primary_key=True, max_length=40)
     user_id = models.CharField(max_length=30)
     execution_code_url = models.URLField()
 
 
 class UserInput(models.Model):
-    id = models.CharField(primary_key=True, max_length=30)
+    id = models.CharField(primary_key=True, max_length=40)
     user_id = models.CharField(max_length=30)
     data_url = models.URLField()
 
@@ -33,7 +33,7 @@ class TrainingTask(models.Model):
         (SUCCEEDED, 'Succeeded'),
     ]
 
-    id = models.CharField(primary_key=True, max_length=30)
+    id = models.CharField(primary_key=True, max_length=40)
     user_id = models.CharField(max_length=30, editable=False)
 
     model = models.ForeignKey(

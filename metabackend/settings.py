@@ -20,6 +20,7 @@ from kombu.utils.url import as_url
 DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(DIR, 'data')
 CONFIGURATION_DIR = os.path.join(DIR, 'conf')
+STATIC_ROOT = os.path.join(DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -33,6 +34,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     '0.0.0.0',
+    '84.201.156.149',
 ]
 
 # Application definition
