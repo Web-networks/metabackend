@@ -101,6 +101,13 @@ DATABASES = {
     }
 }
 
+# {
+#   "name": "db1",
+#   "user": "user1",
+#   "password": "password",
+#   "host": "localhost",
+#   "port": "5432"
+# }
 POSTGRES_CONFIG = load_json(os.path.join(CONFIGURATION_DIR, 'postgres_config.json'), optional=True)
 if POSTGRES_CONFIG:
     DATABASES['default'] = {
