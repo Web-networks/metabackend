@@ -38,7 +38,7 @@ with open(os.path.join(CONFIGURATION_DIR, 'secret')) as s:
     SECRET_KEY = s.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '0.0.0.0',
@@ -242,4 +242,4 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 # execution-system settings
-EXECUTION_SYSTEM_BASE_URL = 'http://localhost:8090'
+EXECUTION_SYSTEM_BASE_URL = 'http://localhost:8888'

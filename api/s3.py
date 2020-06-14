@@ -14,6 +14,10 @@ def generate_url(key):
     return '/'.join((apps.S3_ENDPOINT, apps.S3_BUCKET, key))
 
 
+def generate_path(key):
+    return '/'.join(('s3:/', apps.S3_BUCKET, key))
+
+
 def combine_chunks(chunks, recommended_size=50 * 1024 * 1024):
     big_chunk = list()
     current_size = 0

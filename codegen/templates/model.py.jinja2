@@ -5,15 +5,14 @@
 {% endmacro %}
 
 | from keras.models import Sequential
-{# TODO: deal with repeated imports #}
-{% for layer in model.layers %}
-| from keras.layers.core import {{ layer.type }}
+{% for layer_type in layer_types %}
+| from keras.layers import {{ layer_type }}
 {% endfor %}
 |
 | def init_model():
   < model = Sequential()
   {% for layer in model.layers %}
-    | model.add( {{layer.type}}( {{render_params(layer.params)}} ))
+    | model.add( {{layer.type}}( {{render_params(layer.params | default({}))}} ))
   {% endfor %}
   | return model
  >

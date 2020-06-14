@@ -3,16 +3,20 @@ import logging
 from rest_framework import serializers
 from rest_framework import renderers
 
-from api import apps
+from api import apps, s3
 from data_storage import models
 
 logger = logging.getLogger(__name__)
 
 STATE_FINISHED = 'FINISHED'
+STATE_FAILED = 'FAILED'
+STATE_UNKNOWN_TASK = 'UNKNOWN_TASK'
+STATE_SUCCESS = 'SUCCESS'
+STATE_INITIALIZING = 'INITIALIZING'
 STATE_RUNNING = 'RUNNING'
 STATE_UNKNOWN = 'UNKNOWN'
 
-STATES = (STATE_FINISHED, STATE_RUNNING, STATE_UNKNOWN)
+STATES = (STATE_FINISHED, STATE_UNKNOWN_TASK, STATE_FAILED, STATE_SUCCESS, STATE_INITIALIZING, STATE_RUNNING, STATE_UNKNOWN)
 
 LEARNING = 'learning'
 APPLYING = 'applying'
@@ -51,6 +55,7 @@ class TrainingTaskSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['type'] = self.task_type
+        ret['result'] = {'s3_path': s3.generate_path('result_' + ret['id'])}
         return ret
 
 
@@ -75,10 +80,10 @@ def check_learning_task(task):
     except Exception:
         logger.warning('Check status failed', exc_info=True)
         return False
-    if state == STATE_FINISHED:
+    if state in (STATE_FINISHED, STATE_SUCCESS):
         task.status = models.TrainingTask.SUCCEEDED
         return True
-    elif state == STATE_UNKNOWN:
+    elif state in (STATE_UNKNOWN, STATE_FINISHED, STATE_UNKNOWN_TASK):
         task.status = models.TrainingTask.FAILED
         task.error_message = 'Unknown state in execution system'
         return True

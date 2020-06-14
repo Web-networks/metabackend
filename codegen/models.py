@@ -9,7 +9,11 @@ import codegen.apps as codegen
 def generate_code(model):
     code = copy.deepcopy(codegen.CODES)
     for name in codegen.GENERATE_NAMES:
-        rendered_code = codegen.JINJA_RENDERER.render_with_indents(name, model=model, str=str, repr=repr)
+        rendered_code = codegen.JINJA_RENDERER.render_with_indents(
+            name,
+            model=model, str=str, repr=repr,
+            layer_types=set(map(lambda x: x['type'], model['layers'])),
+        )
         formatted_code = black.format_str(rendered_code, mode=black.FileMode())
         code[name] = formatted_code
     return code
