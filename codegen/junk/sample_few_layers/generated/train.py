@@ -23,6 +23,12 @@ class TrainController:
             metrics=["accuracy"],
         )
 
+    def try_load_weights(self, weights_file):
+        if os.path.exists(weights_file):
+            print("Loading weights...")
+            self.model.load_weights(weights_file)
+            print("Done!")
+
     def do_train(self, X_train, y_train, X_val, y_val, epochs, weights_file):
         callback = ModelCheckpoint(
             weights_file, monitor="val_accuracy", mode="max", save_best_only=True
