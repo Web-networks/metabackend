@@ -21,10 +21,10 @@ class NeurogenIO:
         self.X_train = self.X_train.reshape(self.X_train.shape[0], 28, 28, 1)
         self.X_train = self.X_train.astype("float32")
         self.X_train /= 255
-        return self.X_train, self.y_train
+        return self.X_train[:-100], self.y_train[:-100]
 
     def get_test_xy(self):
         self.X_test = self.X_test.reshape(self.X_test.shape[0], 28, 28, 1)
         self.X_test = self.X_test.astype("float32")
         self.X_test /= 255
-        return self.X_test, self.y_test
+        return self.X_test[-100:], self.y_test[-100:]

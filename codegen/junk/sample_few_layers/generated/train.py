@@ -1,7 +1,7 @@
 import operator
 import os
 
-from tensorflow.keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint
 
 from model import init_model
 
@@ -23,11 +23,7 @@ class TrainController:
             metrics=["accuracy"],
         )
 
-    def do_train(self, X_train, y_train, X_val, y_val, epochs, weights_filename):
-        if not os.path.exists("weights"):
-            os.makedirs("weights")
-
-        weights_file = "weights/" + weights_filename + ".h5"
+    def do_train(self, X_train, y_train, X_val, y_val, epochs, weights_file):
         callback = ModelCheckpoint(
             weights_file, monitor="acc", mode="max", save_best_only=True
         )
