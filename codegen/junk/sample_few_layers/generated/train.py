@@ -25,7 +25,7 @@ class TrainController:
 
     def do_train(self, X_train, y_train, X_val, y_val, epochs, weights_file):
         callback = ModelCheckpoint(
-            weights_file, monitor="acc", mode="max", save_best_only=True
+            weights_file, monitor="val_accuracy", mode="max", save_best_only=True
         )
         result_train = self.model.fit(
             X_train,
