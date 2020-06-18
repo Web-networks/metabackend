@@ -6,16 +6,10 @@ class NeurogenIO:
     def get_vars(self):
         return ["train_test_ratio"]
 
-    def read_inputs(self):
-        if self.ng_bus.mode == "inference":
-            # TODO
-            pass
-        elif self.ng_bus.mode == "train":
-            from keras.datasets import mnist
+    def read_train_data(self):
+        from keras.datasets import mnist
 
-            (self.X_train, self.y_train), (self.X_test, self.y_test) = mnist.load_data()
-        else:
-            raise Exception("invalid mode: " + self.ng_bus.mode)
+        (self.X_train, self.y_train), (self.X_test, self.y_test) = mnist.load_data()
 
     def get_train_xy(self):
         self.X_train = self.X_train.reshape(self.X_train.shape[0], 28, 28, 1)
