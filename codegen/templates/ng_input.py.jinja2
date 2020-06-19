@@ -6,18 +6,13 @@
   | def get_vars(self):
     < return ['train_test_ratio']
     >
-  | def read_inputs(self):
-    < if self.ng_bus.mode == 'inference':
-      < # TODO
-      | pass
-    > elif self.ng_bus.mode == 'train':
-      < {% if model.input.type == 'builtin_dataset' %}
-          | from keras.datasets import {{model.input.dataset}}
-          | (self.X_train, self.y_train), (self.X_test, self.y_test) = {{model.input.dataset}}.load_data()
-        {% endif %}
-    > else:
-      < raise Exception('invalid mode: ' + self.ng_bus.mode)
-      >
+  | def read_train_data(self):
+    < {% if model.input.type == 'builtin_dataset' %}
+        | from keras.datasets import {{model.input.dataset}}
+        | (self.X_train, self.y_train), (self.X_test, self.y_test) = {{model.input.dataset}}.load_data()
+      {% elif model.input.type == 'images' %}
+        | input_dir = ng_config.get_train_dataset_path()
+      {% endif %}
     >
   | def get_train_xy(self):
     < self.X_train = self.X_train.reshape(self.X_train.shape[0], 28, 28, 1)
