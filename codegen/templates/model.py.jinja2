@@ -4,9 +4,9 @@
   {% endfor %}
 {% endmacro %}
 
-| from keras.models import Sequential
+| from tensorflow.keras.models import Sequential
 {% for layer_type in layer_types %}
-| from keras.layers import {{ layer_type }}
+| from tensorflow.keras.layers import {{ layer_type }}
 {% endfor %}
 |
 | def init_model():

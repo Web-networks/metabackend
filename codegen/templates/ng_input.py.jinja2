@@ -8,7 +8,7 @@
     >
   | def read_train_data(self):
     < {% if model.input.type == 'builtin_dataset' %}
-        | from keras.datasets import {{model.input.dataset}}
+        | from tensorflow.keras.datasets import {{model.input.dataset}}
         | (self.X_train, self.y_train), (self.X_test, self.y_test) = {{model.input.dataset}}.load_data()
       {% elif model.input.type == 'images' %}
         | input_dir = ng_config.get_train_dataset_path()
