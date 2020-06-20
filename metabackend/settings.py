@@ -38,7 +38,7 @@ with open(os.path.join(CONFIGURATION_DIR, 'secret')) as s:
     SECRET_KEY = s.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '0.0.0.0',

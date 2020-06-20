@@ -16,7 +16,11 @@ STATE_INITIALIZING = 'INITIALIZING'
 STATE_RUNNING = 'RUNNING'
 STATE_UNKNOWN = 'UNKNOWN'
 
-STATES = (STATE_FINISHED, STATE_UNKNOWN_TASK, STATE_FAILED, STATE_SUCCESS, STATE_INITIALIZING, STATE_RUNNING, STATE_UNKNOWN)
+SUCCESS_FINISH_STATES = (STATE_SUCCESS,)
+WAITING_STATES = (STATE_INITIALIZING, STATE_RUNNING)
+FAIL_STATES = (STATE_FINISHED, STATE_UNKNOWN_TASK, STATE_FAILED, STATE_UNKNOWN)
+
+STATES = SUCCESS_FINISH_STATES + WAITING_STATES + FAIL_STATES
 
 LEARNING = 'learning'
 APPLYING = 'applying'
@@ -40,6 +44,10 @@ class UserInputSerializer(serializers.ModelSerializer):
         fields = ['id', 'data_url']
 
 
+def s3_key_for_result(task_id):
+    return 'result_' + task_id
+
+
 class TrainingTaskSerializer(serializers.ModelSerializer):
     model = NeuralModelSerializer()
     user_input = UserInputSerializer()
@@ -55,7 +63,7 @@ class TrainingTaskSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['type'] = self.task_type
-        ret['result'] = {'s3_path': s3.generate_path('result_' + ret['id'])}
+        ret['result'] = {'s3_path': s3.generate_path(s3_key_for_result(ret['id']))}
         return ret
 
 
@@ -80,11 +88,17 @@ def check_learning_task(task):
     except Exception:
         logger.warning('Check status failed', exc_info=True)
         return False
-    if state in (STATE_FINISHED, STATE_SUCCESS):
+    if state in SUCCESS_FINISH_STATES:
+        task.result_url = s3.generate_url(s3_key_for_result(task.id))
         task.status = models.TrainingTask.SUCCEEDED
         return True
-    elif state in (STATE_UNKNOWN, STATE_FINISHED, STATE_UNKNOWN_TASK):
+    elif state in WAITING_STATES:
+        return False
+    elif state in FAIL_STATES:
+        task.status = models.TrainingTask.FAILED
+        task.error_message = 'Fail in execution system'
+        return True
+    else:
         task.status = models.TrainingTask.FAILED
         task.error_message = 'Unknown state in execution system'
         return True
-    return False

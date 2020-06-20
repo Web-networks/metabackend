@@ -37,8 +37,8 @@ def init_train_task(task_id):
         wait_train_task.apply_async(args=(task.id,), countdown=60)
 
 
-@shared_task(bind=True, max_retries=None, default_retry_delay=60)
-def wait_train_task(self, task_id):
+@shared_task()
+def wait_train_task(task_id):
     logger.info('Wait train task %s', task_id)
     task = models.TrainingTask.objects.get(pk=task_id)
     try:
@@ -46,7 +46,7 @@ def wait_train_task(self, task_id):
         is_finished = execution_system_api.check_learning_task(task)
         task.save()
         if not is_finished:
-            self.retry()
+            wait_train_task.apply_async(args=(task.id,), countdown=60)
     except Exception as e:
         process_exception(e)
         fail_task(task)

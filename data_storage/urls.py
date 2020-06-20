@@ -30,6 +30,13 @@ class TrainingTaskSerializer(serializers.HyperlinkedModelSerializer):
         model = models.TrainingTask
         fields = '__all__'
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        for field in ('error_message', 'result_url'):
+            if not ret[field]:
+                ret.pop(field)
+        return ret
+
 
 class TrainingTaskViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.TrainingTask.objects.all()
