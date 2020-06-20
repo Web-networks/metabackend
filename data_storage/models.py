@@ -47,6 +47,8 @@ class TrainingTask(models.Model, Task):
         UserInput,
         models.PROTECT,
         editable=False,
+        blank=True,
+        null=True,
     )
     parameters = models.CharField(
         help_text='Parameters in json',

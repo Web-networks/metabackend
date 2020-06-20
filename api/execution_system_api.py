@@ -74,6 +74,8 @@ class TrainingTaskSerializer(serializers.ModelSerializer):
             's3_path': s3.generate_path(s3_key_for_result(ret['id'])),
             'metrics_s3_path':s3.generate_path(s3_key_for_metrics(ret['id'])),
         }
+        if not ret['user_input']:
+            ret.pop('user_input')
         return ret
 
 

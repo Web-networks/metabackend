@@ -96,9 +96,12 @@ def start_train_task(request):
     model = models.NeuralModel.objects.get(pk=parsed_request.model_id)
     if model.user_id != user_id:
         raise PermissionError('Permission to model denied')
-    user_input = models.UserInput.objects.get(pk=parsed_request.user_input_id)
-    if user_input.user_id != user_id:
-        raise PermissionError('Permission to user_input denied')
+    if parsed_request.user_input_id == 'mnist':
+        user_input = None
+    else:
+        user_input = models.UserInput.objects.get(pk=parsed_request.user_input_id)
+        if user_input.user_id != user_id:
+            raise PermissionError('Permission to user_input denied')
 
     task = models.TrainingTask(
         id=str(uuid.uuid4()),
