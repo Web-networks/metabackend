@@ -13,7 +13,7 @@ def render_template(model, template_name):
     input_template = template_name + '.py.jinja2'
     code = jinja2py.render_with_indents(
         input_template, model=model, str=str, repr=repr,
-        layer_types=set(map(lambda x: x['type'], model['layers'])),
+        layer_types=sorted(set(map(lambda x: x['type'], model['layers']))),
     )
     return code
 
