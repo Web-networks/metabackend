@@ -56,5 +56,5 @@ def init_model():
     model.add(Flatten())
     model.add(Dense(units=4096, activation="relu",))
     model.add(Dense(units=4096, activation="relu",))
-    model.add(Dense(units=1, activation="softmax",))
+    model.add(Dense(units=10, activation="softmax",))
     return model

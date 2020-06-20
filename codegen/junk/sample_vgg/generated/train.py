@@ -20,7 +20,9 @@ class TrainController:
 
     def do_compile(self):
         self.model.compile(
-            loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
+            loss="sparse_categorical_crossentropy",
+            optimizer="adam",
+            metrics=["accuracy"],
         )
 
     def try_load_weights(self, weights_file):

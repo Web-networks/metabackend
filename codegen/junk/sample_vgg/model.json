@@ -2,7 +2,7 @@
   "model_id": "vgg",
   "user_id": "1",
   "optimizer": "adam",
-  "loss": "binary_crossentropy",
+  "loss": "sparse_categorical_crossentropy",
   "metrics": "accuracy",
   "layers": [
     {
@@ -173,7 +173,7 @@
     {
       "type": "Dense",
       "params": {
-        "units": 1,
+        "units": 10,
         "activation": "softmax"
       }
     }
