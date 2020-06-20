@@ -9,6 +9,8 @@ from data_storage import models
 
 logger = logging.getLogger(__name__)
 
+REQUEST_TIMEOUT = (1, 60)
+
 STATE_FINISHED = 'FINISHED'
 STATE_FAILED = 'FAILED'
 STATE_UNKNOWN_TASK = 'UNKNOWN_TASK'
@@ -49,6 +51,10 @@ def s3_key_for_result(task_id):
     return 'result_' + task_id
 
 
+def s3_key_for_metrics(task_id):
+    return 'metrics_' + task_id
+
+
 class TrainingTaskSerializer(serializers.ModelSerializer):
     model = NeuralModelSerializer()
     user_input = UserInputSerializer()
@@ -64,7 +70,10 @@ class TrainingTaskSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['type'] = self.task_type
-        ret['result'] = {'s3_path': s3.generate_path(s3_key_for_result(ret['id']))}
+        ret['result'] = {
+            's3_path': s3.generate_path(s3_key_for_result(ret['id'])),
+            'metrics_s3_path':s3.generate_path(s3_key_for_metrics(ret['id'])),
+        }
         return ret
 
 
@@ -103,7 +112,7 @@ class EvalTaskSerializer(serializers.ModelSerializer):
 
 
 def start_task(task_id, task_data):
-    result = apps.EXECUTION_SYSTEM_SESSION.post(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task_id}/execute', data=task_data)
+    result = apps.EXECUTION_SYSTEM_SESSION.post(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task_id}/execute', data=task_data, timeout=REQUEST_TIMEOUT)
     result.raise_for_status()
     result_status = result.json()['result']
     if result_status not in ('SUCCESS', 'ALREADY_RUNNING'):
@@ -125,7 +134,7 @@ def start_applying_task(task):
 def check_task(task, task_type=''):
     logger.info('check_{}_task %s'.format(task_type), task.id)
     try:
-        result = apps.EXECUTION_SYSTEM_SESSION.get(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task.id}/state')
+        result = apps.EXECUTION_SYSTEM_SESSION.get(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task.id}/state', timeout=REQUEST_TIMEOUT)
         result.raise_for_status()
         state = result.json()['state']
         if state not in STATES:
