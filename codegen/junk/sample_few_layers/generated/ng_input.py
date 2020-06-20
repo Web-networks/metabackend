@@ -11,7 +11,7 @@ class NeurogenIO:
         return ["train_test_ratio"]
 
     def read_train_data(self):
-        from keras.datasets import mnist
+        from tensorflow.keras.datasets import mnist
 
         data = mnist.load_data()
         (self.X_train, self.y_train), (self.X_test, self.y_test) = data

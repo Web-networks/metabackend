@@ -2,7 +2,7 @@ import operator
 import os
 import logging
 
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 from model import init_model
 import ng_config
