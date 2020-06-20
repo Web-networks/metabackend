@@ -5,6 +5,7 @@ import logging
 import json
 
 import ng_bus
+import ng_config
 import ng_input
 import train
 
@@ -50,17 +51,18 @@ if args.mode == "train":
 
     logging.info("train data shape: %s", X_train.shape)
 
+    train_data = X_train, y_train
+    val_data = X_test, y_test
+
 train.do_compile()
 train.try_load_weights(args.weights)
 
 if args.mode == "train":
-    train.print_sample_predictions(X_test, y_test)
-    result_of_train = train.do_train(
-        X_train, y_train, X_test, y_test, args.epochs, args.weights
-    )
+    train.print_sample_predictions(*val_data)
+    result_of_train = train.do_train(train_data, val_data, args.epochs, args.weights,)
     logging.info("history: %s", result_of_train.history)
     # print(np.mean(result_of_train.history["val_acc"]))
-    train.print_sample_predictions(X_test, y_test)
+    train.print_sample_predictions(*val_data)
 elif args.mode == "eval":
     assert args.eval_data
     logging.debug("eval content: %s", os.listdir(args.eval_data))

@@ -1,0 +1,29 @@
+model = {
+    "model_id": "1",
+    "user_id": "1",
+    "optimizer": "adam",
+    "loss": "sparse_categorical_crossentropy",
+    "metrics": "accuracy",
+    "layers": [
+        {
+            "type": "Conv2D",
+            "params": {
+                "input_shape": [28, 28, 1],
+                "filters": 64,
+                "kernel_size": [3, 3],
+                "padding": "same",
+                "activation": "relu",
+            },
+        },
+        {"type": "Flatten"},
+        {"type": "Dense", "params": {"units": 64, "activation": "relu"}},
+        {"type": "Dense", "params": {"units": 32, "activation": "relu"}},
+        {"type": "Dense", "params": {"units": 10, "activation": "softmax"}},
+    ],
+    "input": {"type": "builtin_dataset", "dataset": "mnist"},
+    "output": {"type": "integer", "range": [0, 10]},
+}
+
+train_data_path = "train"
+
+use_generator_fit = False

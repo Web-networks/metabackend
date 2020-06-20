@@ -5,6 +5,7 @@ import logging
 from keras.callbacks import ModelCheckpoint
 
 from model import init_model
+import ng_config
 
 
 class TrainController:
@@ -30,19 +31,26 @@ class TrainController:
             self.model.load_weights(weights_file)
             logging.info("Done!")
 
-    def do_train(self, X_train, y_train, X_val, y_val, epochs, weights_file):
+    def do_train(self, train_data, val_data, epochs, weights_file):
         callback = ModelCheckpoint(
             weights_file, monitor="val_accuracy", mode="max", save_best_only=True
         )
-        result_train = self.model.fit(
-            X_train,
-            y_train,
-            validation_data=(X_val, y_val),
-            epochs=epochs,
-            batch_size=32,
-            callbacks=[callback],
-        )
-        return result_train
+        if ng_config.use_generator_fit:
+            return self.model.fit_generator(
+                train_data,
+                validation_data=val_data,
+                epochs=epochs,
+                batch_size=32,
+                callbacks=[callback],
+            )
+        else:
+            return self.model.fit(
+                *train_data,
+                validation_data=val_data,
+                epochs=epochs,
+                batch_size=32,
+                callbacks=[callback],
+            )
 
     def print_sample_predictions(self, X_test, y_test):
         y_pred = self.model.predict(X_test[:10])

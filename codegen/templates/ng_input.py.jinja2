@@ -1,3 +1,6 @@
+| import ng_config
+| import util
+|
 | class NeurogenIO:
   < def __init__(self, ng_bus):
     < self.ng_bus = ng_bus
@@ -9,9 +12,12 @@
   | def read_train_data(self):
     < {% if model.input.type == 'builtin_dataset' %}
         | from tensorflow.keras.datasets import {{model.input.dataset}}
-        | (self.X_train, self.y_train), (self.X_test, self.y_test) = {{model.input.dataset}}.load_data()
+        | data = {{model.input.dataset}}.load_data()
+        | (self.X_train, self.y_train), (self.X_test, self.y_test) = data
+        | return data
       {% elif model.input.type == 'images' %}
-        | input_dir = ng_config.get_train_dataset_path()
+        | input_dir = ng_config.train_data_path
+        | return util.read_train_val_images(input_dir, (28, 28), 1/255)
       {% endif %}
     >
   | def get_train_xy(self):

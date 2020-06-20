@@ -1,3 +1,7 @@
+import ng_config
+import util
+
+
 class NeurogenIO:
     def __init__(self, ng_bus):
         self.ng_bus = ng_bus
@@ -9,7 +13,9 @@ class NeurogenIO:
     def read_train_data(self):
         from keras.datasets import mnist
 
-        (self.X_train, self.y_train), (self.X_test, self.y_test) = mnist.load_data()
+        data = mnist.load_data()
+        (self.X_train, self.y_train), (self.X_test, self.y_test) = data
+        return data
 
     def get_train_xy(self):
         self.X_train = self.X_train.reshape(self.X_train.shape[0], 28, 28, 1)
