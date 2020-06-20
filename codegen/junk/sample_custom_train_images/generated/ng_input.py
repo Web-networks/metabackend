@@ -21,12 +21,5 @@ class NeurogenIO:
         return X, y
 
     def read_train_data(self, sample_count):
-        from tensorflow.keras.datasets import mnist
-
-        data = mnist.load_data()
-        data = (
-            self.preprocess(*data[0], sample_count),
-            self.preprocess(*data[1], None),
-        )
-        (self.X_train, self.y_train), (self.X_test, self.y_test) = data
-        return data
+        input_dir = ng_config.train_data_path
+        return util.read_train_val_images(input_dir, (28, 28), 1 / 255)

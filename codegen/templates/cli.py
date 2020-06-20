@@ -26,7 +26,7 @@ parser.add_argument('--mode', required=True, choices=['train', 'eval'])
 
 # train options
 parser.add_argument('--epochs', default=5, type=int)
-parser.add_argument('--sample-count', default=0, type=int)
+parser.add_argument('--sample-count', type=int)
 parser.add_argument('--weights', default='weights.h5')
 
 # eval options
@@ -41,16 +41,10 @@ io = ng_input.NeurogenIO(bus)
 train = train.TrainController()
 
 if args.mode == 'train':
-    io.read_train_data()
-    X_train, y_train = io.get_train_xy()
-    if args.sample_count:
-        X_train, y_train = X_train[:args.sample_count], y_train[:args.sample_count]
-    X_test, y_test = io.get_test_xy()
+    train_data, val_data = io.read_train_data(args.sample_count)
 
-    logging.info('train data shape: %s', X_train.shape)
-
-    train_data = X_train, y_train
-    val_data = X_test, y_test
+    if not ng_config.use_generator_fit:
+        logging.info('X_train shape: %s', train_data[0].shape)
 
 train.do_compile()
 train.try_load_weights(args.weights)
