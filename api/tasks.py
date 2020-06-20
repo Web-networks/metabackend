@@ -50,3 +50,34 @@ def wait_train_task(task_id):
     except Exception as e:
         process_exception(e)
         fail_task(task)
+
+
+@shared_task()
+def init_eval_task(task_id):
+    logger.info('Init eval task %s', task_id)
+    task = models.EvalTask.objects.get(pk=task_id)
+    try:
+        assert task.status == models.EvalTask.INITIAL
+        execution_system_api.start_applying_task(task)
+    except Exception as e:
+        process_exception(e)
+        fail_task(task)
+    else:
+        task.status = models.EvalTask.WAITING
+        task.save()
+        wait_eval_task.apply_async(args=(task.id,), countdown=60)
+
+
+@shared_task()
+def wait_eval_task(task_id):
+    logger.info('Wait eval task %s', task_id)
+    task = models.EvalTask.objects.get(pk=task_id)
+    try:
+        assert task.status == models.EvalTask.WAITING
+        is_finished = execution_system_api.check_applying_task(task)
+        task.save()
+        if not is_finished:
+            wait_eval_task.apply_async(args=(task.id,), countdown=60)
+    except Exception as e:
+        process_exception(e)
+        fail_task(task)

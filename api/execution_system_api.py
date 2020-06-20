@@ -1,3 +1,4 @@
+import functools
 import logging
 
 from rest_framework import serializers
@@ -67,18 +68,62 @@ class TrainingTaskSerializer(serializers.ModelSerializer):
         return ret
 
 
-def start_learning_task(task):
-    task_data = renderers.JSONRenderer().render(TrainingTaskSerializer(task, task_type=LEARNING).data)
-    logger.info('start_learning_task %s', task_data)
-    result = apps.EXECUTION_SYSTEM_SESSION.post(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task.id}/execute', data=task_data)
+class ModelTrainingTaskSerializer(serializers.ModelSerializer):
+    model = NeuralModelSerializer()
+
+    class Meta:
+        model = models.TrainingTask
+        fields = ['model', 'result_url']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['weights_url'] = ret.pop('result_url')
+        ret.update(ret.pop('model'))
+        return ret
+
+
+class EvalTaskSerializer(serializers.ModelSerializer):
+    train_task = ModelTrainingTaskSerializer()
+    user_input = UserInputSerializer()
+
+    class Meta:
+        model = models.TrainingTask
+        fields = ['id', 'parameters', 'train_task', 'user_input']
+
+    def __init__(self, *args, **kwargs):
+        self.task_type = kwargs.pop('task_type')
+        super().__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['type'] = self.task_type
+        ret['result'] = {'s3_path': s3.generate_path(s3_key_for_result(ret['id']))}
+        ret['model'] = ret.pop('train_task')
+        return ret
+
+
+def start_task(task_id, task_data):
+    result = apps.EXECUTION_SYSTEM_SESSION.post(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task_id}/execute', data=task_data)
     result.raise_for_status()
     result_status = result.json()['result']
     if result_status not in ('SUCCESS', 'ALREADY_RUNNING'):
         raise ExecutionSystemError(f'Bad result {result_status}')
 
 
-def check_learning_task(task):
-    logger.info('check_learning_task %s', task.id)
+def start_learning_task(task):
+    task_data = renderers.JSONRenderer().render(TrainingTaskSerializer(task, task_type=LEARNING).data)
+    logger.info('start_learning_task %s', task_data)
+    return start_task(task.id, task_data)
+
+
+def start_applying_task(task):
+    task_data = renderers.JSONRenderer().render(EvalTaskSerializer(task, task_type=APPLYING).data)
+    logger.info('start_applying_task %s', task_data)
+    return start_task(task.id, task_data)
+
+
+def check_task(task, task_type=''):
+    logger.info('check_{}_task %s'.format(task_type), task.id)
     try:
         result = apps.EXECUTION_SYSTEM_SESSION.get(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task.id}/state')
         result.raise_for_status()
@@ -102,3 +147,7 @@ def check_learning_task(task):
         task.status = models.TrainingTask.FAILED
         task.error_message = 'Unknown state in execution system'
         return True
+
+
+check_learning_task = functools.partial(check_task, task_type=LEARNING)
+check_applying_task = functools.partial(check_task, task_type=APPLYING)

@@ -16,7 +16,7 @@ class UserInput(models.Model):
     data_url = models.URLField()
 
 
-class TrainingTask(models.Model):
+class Task(object):
     INITIAL = 'INITIAL'
     WAITING = 'WAITING'
     RUNNING = 'RUNNING'
@@ -33,6 +33,8 @@ class TrainingTask(models.Model):
         (SUCCEEDED, 'Succeeded'),
     ]
 
+
+class TrainingTask(models.Model, Task):
     id = models.CharField(primary_key=True, max_length=40)
     user_id = models.CharField(max_length=30, editable=False)
 
@@ -52,6 +54,31 @@ class TrainingTask(models.Model):
         editable=False,
     )
 
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=30, choices=Task.STATUS_CHOICES)
+    error_message = models.CharField(max_length=1024, blank=True)
+    result_url = models.URLField(blank=True)
+
+
+class EvalTask(models.Model, Task):
+    id = models.CharField(primary_key=True, max_length=40)
+    user_id = models.CharField(max_length=30, editable=False)
+
+    train_task = models.ForeignKey(
+        TrainingTask,
+        models.PROTECT,
+        editable=False,
+    )
+    user_input = models.ForeignKey(
+        UserInput,
+        models.PROTECT,
+        editable=False,
+    )
+    parameters = models.CharField(
+        help_text='Parameters in json',
+        max_length=4096,
+        editable=False,
+    )
+
+    status = models.CharField(max_length=30, choices=Task.STATUS_CHOICES)
     error_message = models.CharField(max_length=1024, blank=True)
     result_url = models.URLField(blank=True)

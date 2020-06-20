@@ -116,6 +116,52 @@ def start_train_task(request):
     return JsonResponse({'task_id': task.id})
 
 
+class StartEvalTaskRequest(object):
+    __slots__ = ('train_task_id', 'user_input_id', 'parameters')
+
+    def __init__(self, train_task_id, user_input_id, parameters):
+        self.train_task_id = train_task_id
+        self.user_input_id = user_input_id
+        self.parameters = parameters
+
+    @classmethod
+    def parse_from_body(cls, body):
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError:
+            logger.exception('Can\'t parse body')
+            raise ValidationError('Bad json body')
+        return cls(*(parsed[field] for field in cls.__slots__))
+
+
+@catch_client_error
+def start_eval_task(request):
+    user_id = get_user_id(request)
+    parsed_request = StartEvalTaskRequest.parse_from_body(request.body)
+
+    train_task = models.TrainingTask.objects.get(pk=parsed_request.train_task_id)
+    if train_task.user_id != user_id:
+        raise PermissionError('Permission to model denied')
+    user_input = models.UserInput.objects.get(pk=parsed_request.user_input_id)
+    if user_input.user_id != user_id:
+        raise PermissionError('Permission to user_input denied')
+
+    task = models.EvalTask(
+        id=str(uuid.uuid4()),
+        user_id=user_id,
+        train_task=train_task,
+        user_input=user_input,
+        parameters=parsed_request.parameters,
+        status=models.TrainingTask.INITIAL,
+        error_message='',
+        result_url=''
+    )
+
+    task.save()
+    on_commit(lambda: celery_tasks.init_eval_task.apply_async(args=(task.id,)))
+    return JsonResponse({'task_id': task.id})
+
+
 @catch_client_error
 def upload_user_input(request):
     user_id = get_user_id(request)

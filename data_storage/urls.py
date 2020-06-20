@@ -43,10 +43,29 @@ class TrainingTaskViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TrainingTaskSerializer
 
 
+class EvalTaskSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.EvalTask
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        for field in ('error_message', 'result_url'):
+            if not ret[field]:
+                ret.pop(field)
+        return ret
+
+
+class EvalTaskViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.EvalTask.objects.all()
+    serializer_class = EvalTaskSerializer
+
+
 router = routers.DefaultRouter()
 router.register(r'neural-models', NeuralModelViewSet)
 router.register(r'user-input', UserInputViewSet)
-router.register(r'taining-tasks', TrainingTaskViewSet)
+router.register(r'training-tasks', TrainingTaskViewSet)
+router.register(r'eval-tasks', EvalTaskViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
