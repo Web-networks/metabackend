@@ -5,9 +5,7 @@
 {% endmacro %}
 
 | from tensorflow.keras.models import Sequential
-{% for layer_type in layer_types %}
-| from tensorflow.keras.layers import {{ layer_type }}
-{% endfor %}
+| from tensorflow.keras.layers import {{ layer_types | join(',') }}
 |
 | def init_model():
   < model = Sequential()
