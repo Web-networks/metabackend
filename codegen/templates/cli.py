@@ -28,6 +28,7 @@ parser.add_argument('--mode', required=True, choices=['train', 'eval'])
 parser.add_argument('--epochs', default=5, type=int)
 parser.add_argument('--sample-count', type=int)
 parser.add_argument('--weights', default='weights.h5')
+parser.add_argument('--metrics-output')
 
 # eval options
 parser.add_argument('--eval-data')
@@ -56,7 +57,12 @@ if args.mode == 'train':
         train_data, val_data,
         args.epochs, args.weights,
     )
-    logging.info('history: %s', result_of_train.history)
+    metrics_output = json.dumps({
+        'history': result_of_train.history
+    })
+    logging.info('history: %s', metrics_output)
+    if args.metrics_output:
+        open(args.metrics_output, 'w').write(metrics_output)
     # print(np.mean(result_of_train.history["val_acc"]))
     train.print_sample_predictions(*val_data)
 elif args.mode == 'eval':
