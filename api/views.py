@@ -111,7 +111,8 @@ def start_train_task(request):
         parameters=parsed_request.parameters,
         status=models.TrainingTask.INITIAL,
         error_message='',
-        result_url=''
+        result_url='',
+        metrics='',
     )
 
     task.save()

@@ -72,7 +72,7 @@ class TrainingTaskSerializer(serializers.ModelSerializer):
         ret['type'] = self.task_type
         ret['result'] = {
             's3_path': s3.generate_path(s3_key_for_result(ret['id'])),
-            'metrics_s3_path':s3.generate_path(s3_key_for_metrics(ret['id'])),
+            'metrics_s3_path': s3.generate_path(s3_key_for_metrics(ret['id'])),
         }
         if not ret['user_input']:
             ret.pop('user_input')
@@ -133,7 +133,7 @@ def start_applying_task(task):
     return start_task(task.id, task_data)
 
 
-def check_task(task, task_type=''):
+def check_task(task, task_type='', success_callback=None):
     logger.info('check_{}_task %s'.format(task_type), task.id)
     try:
         result = apps.EXECUTION_SYSTEM_SESSION.get(apps.EXECUTION_SYSTEM_BASE_URL + f'/api/task/{task.id}/state', timeout=REQUEST_TIMEOUT)
@@ -147,6 +147,8 @@ def check_task(task, task_type=''):
     if state in SUCCESS_FINISH_STATES:
         task.result_url = s3.generate_url(s3_key_for_result(task.id))
         task.status = models.TrainingTask.SUCCEEDED
+        if success_callback is not None:
+            success_callback(task)
         return True
     elif state in WAITING_STATES:
         return False
@@ -160,5 +162,14 @@ def check_task(task, task_type=''):
         return True
 
 
-check_learning_task = functools.partial(check_task, task_type=LEARNING)
+def learning_task_success_callback(task):
+    metrics = s3.get_object(s3_key_for_metrics(task.id))
+    if metrics:
+        metrics = metrics.decode('utf-8')
+    else:
+        metrics = ''
+    task.metrics = metrics
+
+
+check_learning_task = functools.partial(check_task, task_type=LEARNING, success_callback=learning_task_success_callback)
 check_applying_task = functools.partial(check_task, task_type=APPLYING)

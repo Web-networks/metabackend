@@ -1,8 +1,24 @@
+from botocore.exceptions import ClientError
 import logging
 
 from api import apps
 
 logger = logging.getLogger(__name__)
+
+
+def get_object(key):
+    result_object = apps.S3_RESOURCE.Object(apps.S3_BUCKET, key)
+    try:
+        response = result_object.get()
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'NoSuchKey':
+            return None
+        else:
+            raise
+
+    if response.get('DeleteMarker', False):
+        return None
+    return response['Body'].read()
 
 
 def upload_object(key, data):

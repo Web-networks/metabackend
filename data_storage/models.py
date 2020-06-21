@@ -59,6 +59,7 @@ class TrainingTask(models.Model, Task):
     status = models.CharField(max_length=30, choices=Task.STATUS_CHOICES)
     error_message = models.CharField(max_length=1024, blank=True)
     result_url = models.URLField(blank=True)
+    metrics = models.CharField(max_length=8 * 1024, blank=True)
 
 
 class EvalTask(models.Model, Task):

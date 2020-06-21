@@ -1,3 +1,5 @@
+import json
+
 from django.urls import path, include
 from . import models
 from rest_framework import routers, serializers, viewsets
@@ -32,9 +34,14 @@ class TrainingTaskSerializer(serializers.HyperlinkedModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        for field in ('error_message', 'result_url'):
+        for field in ('error_message', 'result_url', 'metrics'):
             if not ret[field]:
                 ret.pop(field)
+        if 'metrics' in ret:
+            try:
+                ret['metrics'] = json.loads(ret['metrics'])
+            except json.JSONDecodeError:
+                ret.pop('metrics')
         return ret
 
 
