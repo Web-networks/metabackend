@@ -8,5 +8,5 @@ def init_model():
     model = Sequential()
     model.add(Input(shape=ng_config.input_shape))
     model.add(Flatten())
-    model.add(Dense(units=10, activation="softmax",))
+    model.add(Dense(units=1,))
     return model

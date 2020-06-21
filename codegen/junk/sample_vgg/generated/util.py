@@ -1,31 +1,49 @@
 from tensorflow import keras
+import tensorflow as tf
+import numpy as np
+import pathlib
+import sklearn
+from sklearn.model_selection import train_test_split
 
 import ng_config
 
 
-def read_train_val_images(dirname, target_size, rescale=1 / 255):
-    gen = keras.preprocessing.image.ImageDataGenerator(
-        rescale=rescale, shear_range=0.2, zoom_range=0.2, horizontal_flip=True,
+def read_train_val_images(basedir, rescale=1 / 255):
+    # here not to break missing deps where unneeded
+    import pandas
+
+    basedir = pathlib.Path(basedir)
+    df = pandas.read_csv(basedir / "dataset.csv")
+    filenames = list(df["filename"])
+    outputs = list(df["output"])
+
+    print(filenames)
+    print(outputs)
+
+    X_train = np.array(
+        [
+            tf.io.decode_image(
+                open(basedir / filename, "rb").read(),
+                channels=ng_config.model["input"]["channels"],
+            ).numpy()
+            for filename in filenames
+        ]
     )
-    train_gen = gen.flow_from_directory(
-        dirname,
-        target_size=target_size,
-        color_mode="grayscale",
-        batch_size=32,
-        classes=list(map(str, range(0, 10))),
-        shuffle=True,
-        seed=42,
-        # subset='training',
+
+    X_train = tf.image.resize(X_train, ng_config.model["input"]["dimensions"]).numpy()
+
+    if ng_config.model["output"]["type"] == "float":
+        y_train = [float(y) for y in outputs]
+    else:
+        y_train = outputs
+
+    y_train = np.array(y_train)
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_train, y_train, test_size=0.33, random_state=42
     )
-    # val_gen = gen.flow_from_directory(
-    #     dirname,
-    #     target_size=target_size,
-    #     color_mode='grayscale',
-    #     batch_size=batch_size,
-    #     classes=list(range(0, 10)),
-    #     shuffle=True,
-    #     seed=42,
-    #     subset='validation',
-    # )
-    val_gen = None
-    return train_gen, val_gen
+
+    print(X_train.shape)
+    print(y_train.shape)
+
+    return (X_train, y_train), (X_val, y_val)

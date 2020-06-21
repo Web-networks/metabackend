@@ -34,8 +34,8 @@ class TrainController:
             weights_file, monitor="val_accuracy", mode="max", save_best_only=True
         )
         if ng_config.use_generator_fit:
-            return self.model.fit_generator(
-                train_data,
+            return self.model.fit(
+                *train_data,
                 validation_data=val_data,
                 epochs=epochs,
                 batch_size=32,
@@ -50,7 +50,12 @@ class TrainController:
                 callbacks=[callback],
             )
 
-    def print_sample_predictions(self, X_test, y_test):
+    def print_sample_predictions(self, Xy_test):
+        if not isinstance(Xy_test, (tuple, list)):
+            return
+        X_test, y_test = Xy_test
+        if len(X_test) == 0:
+            return
         y_pred = self.model.predict(X_test[:10])
         print("i", "real", "pred", "prob", sep="\t")
         for i, pred in enumerate(y_pred):

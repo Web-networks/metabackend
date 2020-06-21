@@ -31,6 +31,7 @@ parser.add_argument("--epochs", default=5, type=int)
 parser.add_argument("--sample-count", type=int)
 parser.add_argument("--weights", default="weights.h5")
 parser.add_argument("--metrics-output")
+parser.add_argument("--train-data-dir")
 
 # eval options
 parser.add_argument("--eval-data")
@@ -44,6 +45,9 @@ bus = ng_bus.NeurogenBus(args.mode)
 io = ng_input.NeurogenIO(bus)
 train = train.TrainController()
 
+if args.train_data_dir:
+    ng_config.train_data_path = args.train_data_dir
+
 if args.mode == "train":
     train_data, val_data = io.read_train_data(args.sample_count)
 
@@ -54,14 +58,14 @@ train.do_compile()
 train.try_load_weights(args.weights)
 
 if args.mode == "train":
-    train.print_sample_predictions(*val_data)
+    train.print_sample_predictions(val_data)
     result_of_train = train.do_train(train_data, val_data, args.epochs, args.weights,)
     metrics_output = json.dumps({"history": result_of_train.history})
     logging.info("history: %s", metrics_output)
     if args.metrics_output:
         open(args.metrics_output, "w").write(metrics_output)
     # print(np.mean(result_of_train.history["val_acc"]))
-    train.print_sample_predictions(*val_data)
+    train.print_sample_predictions(val_data)
 elif args.mode == "eval":
     assert args.eval_data
     assert args.network_output

@@ -1,5 +1,4 @@
 import ng_config
-import util
 
 
 class NeurogenIO:
@@ -21,5 +20,12 @@ class NeurogenIO:
         return X, y
 
     def read_train_data(self, sample_count):
+        import util
+
         input_dir = ng_config.train_data_path
-        return util.read_train_val_images(input_dir, (28, 28), 1 / 255)
+        data = util.read_train_val_images(input_dir, 1 / 255)
+        data = (
+            self.preprocess(*data[0], sample_count),
+            self.preprocess(*data[1], None),
+        )
+        return data

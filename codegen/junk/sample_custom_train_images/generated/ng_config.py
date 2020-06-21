@@ -4,10 +4,7 @@ model = {
     "optimizer": "adam",
     "loss": "mean_squared_error",
     "metrics": "accuracy",
-    "layers": [
-        {"type": "Flatten"},
-        {"type": "Dense", "params": {"units": 10, "activation": "softmax"}},
-    ],
+    "layers": [{"type": "Flatten"}, {"type": "Dense", "params": {"units": 1}}],
     "input": {"type": "images", "dimensions": [28, 28], "channels": 1},
     "output": {"type": "float"},
 }

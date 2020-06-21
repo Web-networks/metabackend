@@ -1,5 +1,4 @@
 import ng_config
-import util
 
 
 class NeurogenIO:
@@ -28,5 +27,4 @@ class NeurogenIO:
             self.preprocess(*data[0], sample_count),
             self.preprocess(*data[1], None),
         )
-        (self.X_train, self.y_train), (self.X_test, self.y_test) = data
         return data

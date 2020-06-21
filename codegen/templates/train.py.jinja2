@@ -32,6 +32,7 @@
                                  monitor='val_accuracy',
                                  mode='max',
                                  save_best_only=True)
+    {#| print(train_data, val_data)#}
     {% macro do_train(fit_fn, fit_train_unpack) %} 
       self.model.{{fit_fn}}(
           {{fit_train_unpack}} train_data,
@@ -42,13 +43,16 @@
       )
     {% endmacro %}
     | if ng_config.use_generator_fit:
-      < return {{ do_train('fit_generator', '') }}
+      < return {{ do_train('fit', '*') }}
     > else:
       < return {{ do_train('fit', '*') }}
       >
     >
-  | def print_sample_predictions(self, X_test, y_test):
-    < y_pred = self.model.predict(X_test[:10])
+  | def print_sample_predictions(self, Xy_test):
+    < if not isinstance(Xy_test, (tuple, list)): return
+    | X_test, y_test = Xy_test
+    | if len(X_test) == 0: return
+    | y_pred = self.model.predict(X_test[:10])
     | print('i', 'real', 'pred', 'prob', sep='\t')
     | for i, pred in enumerate(y_pred):
       < pred, prob = max(enumerate(pred), key=operator.itemgetter(1))
