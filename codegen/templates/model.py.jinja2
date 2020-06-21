@@ -5,10 +5,13 @@
 {% endmacro %}
 
 | from tensorflow.keras.models import Sequential
-| from tensorflow.keras.layers import {{ layer_types | join(',') }}
+| from tensorflow.keras.layers import Input, {{ layer_types | join(',') }}
+|
+| import ng_config
 |
 | def init_model():
   < model = Sequential()
+  | model.add(Input(shape=ng_config.input_shape))
   {% for layer in model.layers %}
     | model.add( {{layer.type}}( {{render_params(layer.params | default({}))}} ))
   {% endfor %}

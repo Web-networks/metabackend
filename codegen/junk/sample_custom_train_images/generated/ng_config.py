@@ -5,14 +5,15 @@ model = {
     "loss": "mean_squared_error",
     "metrics": "accuracy",
     "layers": [
-        {"type": "Input", "params": {"shape": [28, 28, 1]}},
         {"type": "Flatten"},
         {"type": "Dense", "params": {"units": 10, "activation": "softmax"}},
     ],
-    "input": {"type": "images"},
+    "input": {"type": "images", "dimensions": [28, 28], "channels": 1},
     "output": {"type": "float"},
 }
 
 train_data_path = "train"
 
 use_generator_fit = True
+
+input_shape = (28, 28, 1)

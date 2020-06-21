@@ -8,7 +8,7 @@ model = {
         {
             "type": "Conv2D",
             "params": {
-                "input_shape": [28, 28, 1],
+                "input_shape": [32, 32, 3],
                 "filters": 64,
                 "kernel_size": [3, 3],
                 "padding": "same",
@@ -132,10 +132,17 @@ model = {
         {"type": "Dense", "params": {"units": 4096, "activation": "relu"}},
         {"type": "Dense", "params": {"units": 10, "activation": "softmax"}},
     ],
-    "input": {"type": "builtin_dataset", "dataset": "mnist"},
+    "input": {
+        "type": "builtin_dataset",
+        "dataset": "cifar100",
+        "dimensions": [32, 32],
+        "channels": 3,
+    },
     "output": {"type": "integer", "range": [0, 10]},
 }
 
 train_data_path = "train"
 
 use_generator_fit = False
+
+input_shape = (32, 32, 3)
