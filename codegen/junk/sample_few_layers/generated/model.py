@@ -1,17 +1,14 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, Dense, Flatten
+from tensorflow.keras.layers import Input, Conv2D, Dense, Flatten
+
+import ng_config
 
 
 def init_model():
     model = Sequential()
+    model.add(Input(shape=ng_config.input_shape))
     model.add(
-        Conv2D(
-            input_shape=[28, 28, 1],
-            filters=64,
-            kernel_size=[3, 3],
-            padding="same",
-            activation="relu",
-        )
+        Conv2D(filters=64, kernel_size=[3, 3], padding="same", activation="relu",)
     )
     model.add(Flatten())
     model.add(Dense(units=64, activation="relu",))

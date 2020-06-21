@@ -6,12 +6,6 @@
   "metrics": "accuracy",
   "layers": [
     {
-      "type": "Input",
-      "params": {
-        "shape": [28, 28, 1]
-      }
-    },
-    {
       "type": "Flatten"
     },
     {
@@ -23,7 +17,9 @@
     }
   ],
   "input": {
-    "type": "images"
+    "type": "images",
+    "dimensions": [28, 28],
+    "channels": 1
   },
   "output": {
     "type": "float"

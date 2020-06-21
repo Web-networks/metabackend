@@ -11,7 +11,7 @@ class NeurogenIO:
         return ["train_test_ratio"]
 
     def preprocess(self, X, y, sample_count):
-        X = X.reshape(X.shape[0], 28, 28, 1)
+        X = X.reshape(X.shape[0], *ng_config.input_shape)
         X = X.astype("float32")
         X /= 255
         if sample_count:
@@ -21,9 +21,9 @@ class NeurogenIO:
         return X, y
 
     def read_train_data(self, sample_count):
-        from tensorflow.keras.datasets import mnist
+        from tensorflow.keras.datasets import cifar100
 
-        data = mnist.load_data()
+        data = cifar100.load_data()
         data = (
             self.preprocess(*data[0], sample_count),
             self.preprocess(*data[1], None),

@@ -8,7 +8,6 @@
     {
       "type": "Conv2D",
       "params": {
-        "input_shape": [28, 28, 1],
         "filters": 64,
         "kernel_size": [3, 3],
         "padding": "same",
@@ -42,7 +41,9 @@
   ],
   "input": {
     "type": "builtin_dataset",
-    "dataset": "mnist"
+    "dataset": "mnist",
+    "dimensions": [28, 28],
+    "channels": 1
   },
   "output": {
     "type": "integer",
