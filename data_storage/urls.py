@@ -5,6 +5,14 @@ from . import models
 from rest_framework import routers, serializers, viewsets
 
 
+def load_json_from_str(ret, field):
+    if field in ret:
+        try:
+            ret[field] = json.loads(ret[field])
+        except json.JSONDecodeError:
+            ret.pop(field)
+
+
 class NeuralModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.NeuralModel
@@ -37,11 +45,7 @@ class TrainingTaskSerializer(serializers.HyperlinkedModelSerializer):
         for field in ('error_message', 'result_url', 'metrics'):
             if not ret[field]:
                 ret.pop(field)
-        if 'metrics' in ret:
-            try:
-                ret['metrics'] = json.loads(ret['metrics'])
-            except json.JSONDecodeError:
-                ret.pop('metrics')
+        load_json_from_str(ret, 'metrics')
         return ret
 
 
@@ -57,9 +61,10 @@ class EvalTaskSerializer(serializers.HyperlinkedModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        for field in ('error_message', 'result_url'):
+        for field in ('error_message', 'result'):
             if not ret[field]:
                 ret.pop(field)
+        load_json_from_str(ret, 'result')
         return ret
 
 

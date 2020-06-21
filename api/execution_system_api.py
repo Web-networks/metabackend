@@ -145,7 +145,6 @@ def check_task(task, task_type='', success_callback=None):
         logger.warning('Check status failed', exc_info=True)
         return False
     if state in SUCCESS_FINISH_STATES:
-        task.result_url = s3.generate_url(s3_key_for_result(task.id))
         task.status = models.TrainingTask.SUCCEEDED
         if success_callback is not None:
             success_callback(task)
@@ -162,14 +161,25 @@ def check_task(task, task_type='', success_callback=None):
         return True
 
 
-def learning_task_success_callback(task):
-    metrics = s3.get_object(s3_key_for_metrics(task.id))
-    if metrics:
-        metrics = metrics.decode('utf-8')
+def get_data_from_s3(key):
+    data = s3.get_object(key)
+    if data:
+        data = data.decode('utf-8')
     else:
-        metrics = ''
-    task.metrics = metrics
+        data = ''
+    return data
+
+
+def learning_task_success_callback(task):
+    task.result_url = s3.generate_url(s3_key_for_result(task.id))
+    task.metrics = get_data_from_s3(s3_key_for_metrics(task.id))
 
 
 check_learning_task = functools.partial(check_task, task_type=LEARNING, success_callback=learning_task_success_callback)
-check_applying_task = functools.partial(check_task, task_type=APPLYING)
+
+
+def applying_task_success_callback(task):
+    task.result = get_data_from_s3(s3_key_for_result(task.id))
+
+
+check_applying_task = functools.partial(check_task, task_type=APPLYING, success_callback=applying_task_success_callback)

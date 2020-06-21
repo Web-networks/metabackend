@@ -158,7 +158,7 @@ def start_eval_task(request):
         parameters=parsed_request.parameters,
         status=models.TrainingTask.INITIAL,
         error_message='',
-        result_url=''
+        result=''
     )
 
     task.save()
