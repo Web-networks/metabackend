@@ -4,4 +4,8 @@
 |
 | use_generator_fit = {{repr(model.input.type == 'images')}}
 |
-| input_shape = ({{ (model.input.dimensions + [model.input.channels,]) | join(',') }})
+{% if model.input.type in ['images', 'builtin_dataset'] %}
+  | input_shape = ({{ (model.input.dimensions + [model.input.channels,]) | join(',') }})
+{% else %}
+  | input_shape = (10,)
+{% endif %}

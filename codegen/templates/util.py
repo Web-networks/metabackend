@@ -7,6 +7,19 @@ from sklearn.model_selection import train_test_split
 
 import ng_config
 
+def load_images(filenames):
+    X= np.array([
+        tf.io.decode_image(
+            open(filename, 'rb').read(), 
+            channels=ng_config.model['input']['channels']
+        ).numpy()
+        for filename in filenames
+    ])
+
+    X = tf.image.resize(X, ng_config.model['input']['dimensions']).numpy()
+
+    return X
+
 def read_train_val_images(basedir, rescale=1/255):
     # here not to break missing deps where unneeded
     import pandas
@@ -16,18 +29,7 @@ def read_train_val_images(basedir, rescale=1/255):
     filenames = list(df['filename'])
     outputs = list(df['output'])
 
-    print(filenames)
-    print(outputs)
-
-    X_train = np.array([
-        tf.io.decode_image(
-            open(basedir / filename, 'rb').read(), 
-            channels=ng_config.model['input']['channels']
-        ).numpy()
-        for filename in filenames
-    ])
-
-    X_train = tf.image.resize(X_train, ng_config.model['input']['dimensions']).numpy()
+    X_train = load_images(map(lambda filename: basedir / filename, filenames))
 
     if ng_config.model['output']['type'] == 'float':
         y_train = [float(y) for y in outputs]
@@ -41,8 +43,11 @@ def read_train_val_images(basedir, rescale=1/255):
             X_train, y_train,
             test_size=0.33, random_state=42
         )
-    
-    print(X_train.shape)
-    print(y_train.shape)
 
     return (X_train, y_train), (X_val, y_val)
+
+def read_csv(filename):
+    import pandas
+
+    df = pandas.read_csv(filename)
+    print(df.head())

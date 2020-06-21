@@ -50,6 +50,22 @@ class TrainController:
                 callbacks=[callback],
             )
 
+    def do_eval(self, eval_data):
+        preds = self.model.predict(eval_data)
+        self.show_predictions(preds)
+        result = []
+        for probs in preds:
+            d, prob = max(enumerate(probs), key=operator.itemgetter(1))
+            result.append(d)
+
+        return result
+
+    def show_predictions(self, preds):
+        print("i", "real", "pred", "prob", sep="\t")
+        for i, pred in enumerate(preds):
+            pred, prob = max(enumerate(pred), key=operator.itemgetter(1))
+            print(i, "n/a", pred, prob, sep="\t")
+
     def print_sample_predictions(self, Xy_test):
         if not isinstance(Xy_test, (tuple, list)):
             return

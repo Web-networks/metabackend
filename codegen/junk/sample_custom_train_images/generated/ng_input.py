@@ -15,7 +15,8 @@ class NeurogenIO:
         X /= 255
         if sample_count:
             X = X[:sample_count]
-            y = y[:sample_count]
+            if y is not None:
+                y = y[:sample_count]
 
         return X, y
 
@@ -28,4 +29,12 @@ class NeurogenIO:
             self.preprocess(*data[0], sample_count),
             self.preprocess(*data[1], None),
         )
+        return data
+
+    def read_eval_data(self, filenames):
+        import util
+
+        input_dir = ng_config.train_data_path
+        data = util.load_images(filenames)
+        data, _ = self.preprocess(data, None, None)
         return data

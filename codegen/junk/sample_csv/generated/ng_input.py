@@ -21,19 +21,15 @@ class NeurogenIO:
         return X, y
 
     def read_train_data(self, sample_count):
-        from tensorflow.keras.datasets import cifar100
+        import util
 
-        data = cifar100.load_data()
-        data = (
-            self.preprocess(*data[0], sample_count),
-            self.preprocess(*data[1], None),
-        )
+        input_file = ng_config.train_data_path
+        data = util.read_csv(input_file)
         return data
 
     def read_eval_data(self, filenames):
         import util
 
-        input_dir = ng_config.train_data_path
-        data = util.load_images(filenames)
-        data, _ = self.preprocess(data, None, None)
+        input_file = ng_config.train_data_path
+        data = util.read_csv(input_file)
         return data

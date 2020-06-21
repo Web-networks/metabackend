@@ -3,6 +3,7 @@ import os
 import random
 import logging
 import json
+import pathlib
 
 import ng_bus
 import ng_config
@@ -72,11 +73,20 @@ if args.mode == 'train':
 elif args.mode == 'eval':
     assert args.eval_data
     assert args.network_output
-    logging.debug('eval content: %s', os.listdir(args.eval_data))
+    if os.path.isdir(args.eval_data):
+        base_dir = pathlib.Path(args.eval_data)
+        filenames = os.listdir(base_dir)
+        filepaths = list(map(lambda x: base_dir / x, filenames))
+    else:
+        filenames = [args.eval_data]
+        filepaths = filenames
+    logging.debug('eval files: %s', filenames)
+    X = io.read_eval_data(filepaths)
+    result = train.do_eval(X)
     eval_result = json.dumps({
         'eval_result': {
-            filename: random.randint(0, 9)
-            for filename in os.listdir(args.eval_data)
+            filename: out
+            for filename, out in zip(filenames, result)
         }
     })
     logging.info('eval result: %s', eval_result)
