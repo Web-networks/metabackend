@@ -33,6 +33,7 @@ parser.add_argument("--weights", default="weights.h5")
 
 # eval options
 parser.add_argument("--eval-data")
+parser.add_argument("--network-output")
 
 args = parser.parse_args()
 
@@ -59,17 +60,18 @@ if args.mode == "train":
     train.print_sample_predictions(*val_data)
 elif args.mode == "eval":
     assert args.eval_data
+    assert args.network_output
     logging.debug("eval content: %s", os.listdir(args.eval_data))
-    print(
-        json.dumps(
-            {
-                "eval_result": {
-                    filename: random.randint(0, 9)
-                    for filename in os.listdir(args.eval_data)
-                }
+    eval_result = json.dumps(
+        {
+            "eval_result": {
+                filename: random.randint(0, 9)
+                for filename in os.listdir(args.eval_data)
             }
-        )
+        }
     )
+    logging.info("eval result: %s", eval_result)
+    open(args.network_output, "w").write(eval_result)
 
 from tensorflow.keras import backend as K
 
