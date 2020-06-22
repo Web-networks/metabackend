@@ -9,15 +9,20 @@ class NeurogenIO:
     def get_vars(self):
         return ["train_test_ratio"]
 
-    def preprocess(self, X, y, sample_count):
-        X = X.reshape(X.shape[0], *ng_config.input_shape)
-        X = X.astype("float32")
-        X /= 255
+    def bite_sample(self, X, y, sample_count):
+
         if sample_count:
             X = X[:sample_count]
             if y is not None:
                 y = y[:sample_count]
 
+        return X, y
+
+    def preprocess(self, X, y, sample_count):
+        X = X.reshape(X.shape[0], *ng_config.input_shape)
+        X = X.astype("float32")
+        X /= 255
+        X, y = self.bite_sample(X, y, sample_count)
         return X, y
 
     def read_train_data(self, sample_count):

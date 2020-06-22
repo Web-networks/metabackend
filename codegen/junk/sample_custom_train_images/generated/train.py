@@ -76,4 +76,6 @@ class TrainController:
         print("i", "real", "pred", "prob", sep="\t")
         for i, pred in enumerate(y_pred):
             pred, prob = max(enumerate(pred), key=operator.itemgetter(1))
+            assert isinstance(pred, (float, int))
+            pred = "n/a"
             print(i, y_test[i], pred, prob, sep="\t")

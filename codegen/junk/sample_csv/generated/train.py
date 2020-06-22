@@ -20,9 +20,7 @@ class TrainController:
 
     def do_compile(self):
         self.model.compile(
-            loss="sparse_categorical_crossentropy",
-            optimizer="adam",
-            metrics=["accuracy"],
+            loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
         )
 
     def try_load_weights(self, weights_file):
@@ -78,4 +76,6 @@ class TrainController:
         print("i", "real", "pred", "prob", sep="\t")
         for i, pred in enumerate(y_pred):
             pred, prob = max(enumerate(pred), key=operator.itemgetter(1))
+            assert isinstance(pred, (float, int))
+            pred = round(prob)
             print(i, y_test[i], pred, prob, sep="\t")

@@ -8,16 +8,21 @@
   | def get_vars(self):
     < return ['train_test_ratio']
     >
-  | def preprocess(self, X, y, sample_count):
-    < X = X.reshape(X.shape[0], *ng_config.input_shape)
-    | X = X.astype('float32')
-    | X /= 255
+  | def bite_sample(self, X, y, sample_count):
+    <
     | if sample_count:
       < X = X[:sample_count]
       | if y is not None:
         < y = y[:sample_count]
         >
       >
+    | return X, y
+    >
+  | def preprocess(self, X, y, sample_count):
+    < X = X.reshape(X.shape[0], *ng_config.input_shape)
+    | X = X.astype('float32')
+    | X /= 255
+    | X, y = self.bite_sample(X, y, sample_count)
     | return X, y
     >
   | def read_train_data(self, sample_count):
@@ -29,13 +34,18 @@
       {% elif model.input.type == 'images' %}
         | import util
         | input_dir = ng_config.train_data_path
-        | data = util.read_train_val_images(input_dir, 1/255)
+        | data = util.read_train_images(input_dir, 1/255)
+        | data = util.val_split(*data)
         | data = (self.preprocess(*data[0], sample_count), self.preprocess(*data[1], None))
         | return data
       {% elif model.input.type == 'csv' %}
+        | import csv_util
         | import util
         | input_file = ng_config.train_data_path
-        | data = util.read_csv(input_file)
+        | data = csv_util.read_csv(input_file)
+        | data = util.val_split(*data)
+        {# no preprocess here #}
+        | data = (self.bite_sample(*data[0], sample_count), data[1])
         | return data
       {% endif %}
     >
@@ -47,9 +57,8 @@
         | data, _ = self.preprocess(data, None, None)
         | return data
       {% elif model.input.type == 'csv' %}
-        | import util
-        | input_file = ng_config.train_data_path
-        | data = util.read_csv(input_file)
+        | import csv_util
+        | data = csv_util.read_csv(input_file)
         | return data
       {% endif %}
     >

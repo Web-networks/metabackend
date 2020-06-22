@@ -20,7 +20,7 @@ def load_images(filenames):
 
     return X
 
-def read_train_val_images(basedir, rescale=1/255):
+def read_train_images(basedir, rescale=1/255):
     # here not to break missing deps where unneeded
     import pandas
 
@@ -38,16 +38,13 @@ def read_train_val_images(basedir, rescale=1/255):
 
     y_train = np.array(y_train)
 
+    return X_train, y_train
+
+def val_split(X, y):
     X_train, X_val, y_train, y_val = \
         train_test_split(
-            X_train, y_train,
-            test_size=0.33, random_state=42
+            X, y,
+            test_size=0.33, random_state=42,
         )
 
     return (X_train, y_train), (X_val, y_val)
-
-def read_csv(filename):
-    import pandas
-
-    df = pandas.read_csv(filename)
-    print(df.head())

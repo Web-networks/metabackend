@@ -6,6 +6,8 @@
 |
 {% if model.input.type in ['images', 'builtin_dataset'] %}
   | input_shape = ({{ (model.input.dimensions + [model.input.channels,]) | join(',') }})
+{% elif model.input.type == 'csv' %}
+  | input_shape = ({{ model.input.features|length }},)
 {% else %}
-  | input_shape = (10,)
+  | input_shape = ('wow such shape',)
 {% endif %}
