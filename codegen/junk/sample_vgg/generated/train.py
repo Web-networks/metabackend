@@ -21,7 +21,7 @@ class TrainController:
     def do_compile(self):
         self.model.compile(
             loss="sparse_categorical_crossentropy",
-            optimizer="adam",
+            optimizer="rmsprop",
             metrics=["accuracy"],
         )
 

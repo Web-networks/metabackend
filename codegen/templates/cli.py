@@ -52,6 +52,8 @@ if args.mode == 'train':
 
     if not ng_config.use_generator_fit:
         logging.info('X_train shape: %s', train_data[0].shape)
+    
+    logging.info('y_train shape: %s', train_data[1].shape)
 
 train.do_compile()
 train.try_load_weights(args.weights)

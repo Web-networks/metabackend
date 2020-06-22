@@ -1,34 +1,17 @@
 {
   "model_id": "vgg",
   "user_id": "1",
-  "optimizer": "adam",
+  "optimizer": "rmsprop",
   "loss": "sparse_categorical_crossentropy",
   "metrics": "accuracy",
   "layers": [
     {
       "type": "Conv2D",
       "params": {
-        "input_shape": [32, 32, 3],
-        "filters": 64,
+        "filters": 128,
         "kernel_size": [3, 3],
         "padding": "same",
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Conv2D",
-      "params": {
-        "filters": 64,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "MaxPool2D",
-      "params": {
-        "pool_size": [2, 2],
-        "strides": [2, 2]
+        "activation": "elu"
       }
     },
     {
@@ -37,23 +20,13 @@
         "filters": 128,
         "kernel_size": [3, 3],
         "padding": "same",
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Conv2D",
-      "params": {
-        "filters": 128,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
+        "activation": "elu"
       }
     },
     {
       "type": "MaxPool2D",
       "params": {
-        "pool_size": [2, 2],
-        "strides": [2, 2]
+        "pool_size": [2, 2]
       }
     },
     {
@@ -62,7 +35,7 @@
         "filters": 256,
         "kernel_size": [3, 3],
         "padding": "same",
-        "activation": "relu"
+        "activation": "elu"
       }
     },
     {
@@ -71,23 +44,19 @@
         "filters": 256,
         "kernel_size": [3, 3],
         "padding": "same",
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Conv2D",
-      "params": {
-        "filters": 256,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
+        "activation": "elu"
       }
     },
     {
       "type": "MaxPool2D",
       "params": {
-        "pool_size": [2, 2],
-        "strides": [2, 2]
+        "pool_size": [2, 2]
+      }
+    },
+    {
+      "type": "Dropout",
+      "params": {
+        "rate": 0.25
       }
     },
     {
@@ -96,7 +65,7 @@
         "filters": 512,
         "kernel_size": [3, 3],
         "padding": "same",
-        "activation": "relu"
+        "activation": "elu"
       }
     },
     {
@@ -105,75 +74,41 @@
         "filters": 512,
         "kernel_size": [3, 3],
         "padding": "same",
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Conv2D",
-      "params": {
-        "filters": 512,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
+        "activation": "elu"
       }
     },
     {
       "type": "MaxPool2D",
       "params": {
-        "pool_size": [2, 2],
-        "strides": [2, 2]
+        "pool_size": [2, 2]
       }
     },
     {
-      "type": "Conv2D",
+      "type": "Dropout",
       "params": {
-        "filters": 512,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
+        "rate": 0.25
       }
     },
     {
-      "type": "Conv2D",
+      "type": "Flatten"
+    },
+    {
+      "type": "Dense",
       "params": {
-        "filters": 512,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
+        "units": 1024,
+        "activation": "elu"
       }
     },
     {
-      "type": "Conv2D",
+      "type": "Dropout",
       "params": {
-        "filters": 512,
-        "kernel_size": [3, 3],
-        "padding": "same",
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Flatten",
-      "params":{
+        "rate": 0.5
       }
     },
     {
       "type": "Dense",
       "params": {
-        "units": 4096,
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Dense",
-      "params": {
-        "units": 4096,
-        "activation": "relu"
-      }
-    },
-    {
-      "type": "Dense",
-      "params": {
-        "units": 10,
+        "units": 100,
         "activation": "softmax"
       }
     }
@@ -186,6 +121,6 @@
   },
   "output": {
     "type": "integer",
-    "range": [0, 10]
+    "range": [0, 100]
   }
 } 
