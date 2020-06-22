@@ -53,6 +53,8 @@
     }
   },
   "output": {
-    "type": "bool"
+    "type": "bool",
+    "target": "csv",
+    "name": "survived_out"
   }
 } 

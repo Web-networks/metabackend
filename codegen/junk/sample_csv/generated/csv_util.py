@@ -6,7 +6,6 @@ import ng_config
 # parse feature sex
 def parse_sex(val):
 
-    # print(f'debug: value {val} for feature sex')
     if val == "male":
         return 0
 
@@ -19,7 +18,6 @@ def parse_sex(val):
 # parse feature class
 def parse_class(val):
 
-    # print(f'debug: value {val} for feature class')
     if val == "First":
         return 0
 
@@ -35,7 +33,6 @@ def parse_class(val):
 # parse feature alone
 def parse_alone(val):
 
-    # print(f'debug: value {val} for feature alone')
     if val == "n":
         return 0
 
@@ -48,25 +45,22 @@ def parse_alone(val):
 # parse feature n_siblings_spouses
 def parse_n_siblings_spouses(val):
 
-    # print(f'debug: value {val} for feature n_siblings_spouses')
     return float(val)
 
 
 # parse feature parch
 def parse_parch(val):
 
-    # print(f'debug: value {val} for feature parch')
     return float(val)
 
 
 # parse target survived
 def parse_survived(val):
 
-    # print(f'debug: value {val} for feature survived')
     return int(val)
 
 
-def read_csv(filename):
+def read_csv(filename, train_mode):
 
     df = pandas.read_csv(filename)
     feature_sex = map(parse_sex, df["sex"])
@@ -86,7 +80,28 @@ def read_csv(filename):
         )
     )
     assert X[0].shape == ng_config.input_shape
+    if not train_mode:
+        return X
+
     feature_survived = map(parse_survived, df["survived"])
     y = np.array(list(feature_survived))
-    print(X, y)
     return X, y
+
+
+def add_result_column(source_filename, result):
+
+    assert ng_config.model["output"]["target"] == "csv"
+    i = -1
+    out = ""
+    for line in open(source_filename):
+
+        line = line.strip()
+        if i == -1:
+            line += "," + "survived_out"
+        else:
+            line += "," + str(result[i])
+
+        out += line + "\n"
+        i += 1
+
+    return out

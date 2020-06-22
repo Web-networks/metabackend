@@ -36,7 +36,7 @@ case = args.case
 
 model = json.load(open(f'{case}/model.json'))
 
-for module in ['model', 'ng_input', 'train', 'ng_bus', 'cli', 'ng_config', 'util', 'csv_util']:
+for module in ['model', 'ng_input', 'train', 'ng_bus', 'cli', 'ng_config', 'util', 'csv_util', 'cli_util']:
     naive_path = f'{TEMPLATES_PATH}/{module}.py'
     if os.path.exists(naive_path):
         code = open(naive_path).read()

@@ -73,24 +73,8 @@ if args.mode == 'train':
 elif args.mode == 'eval':
     assert args.eval_data
     assert args.network_output
-    if os.path.isdir(args.eval_data):
-        base_dir = pathlib.Path(args.eval_data)
-        filenames = os.listdir(base_dir)
-        filepaths = list(map(lambda x: base_dir / x, filenames))
-    else:
-        filenames = [args.eval_data]
-        filepaths = filenames
-    logging.debug('eval files: %s', filenames)
-    X = io.read_eval_data(filepaths)
-    result = train.do_eval(X)
-    eval_result = json.dumps({
-        'eval_result': {
-            filename: out
-            for filename, out in zip(filenames, result)
-        }
-    })
-    logging.info('eval result: %s', eval_result)
-    open(args.network_output, 'w').write(eval_result)
+    import cli_util
+    cli_util.do_eval(args, io, train)
 
 from tensorflow.keras import backend as K
 

@@ -50,20 +50,25 @@ class TrainController:
                 callbacks=[callback],
             )
 
+    def get_processed_output(self, raw_out):
+        pred, prob = max(enumerate(raw_out), key=operator.itemgetter(1))
+        assert isinstance(pred, (float, int))
+        pred = int(round(prob))
+        return pred, prob
+
     def do_eval(self, eval_data):
         preds = self.model.predict(eval_data)
         self.show_predictions(preds)
         result = []
         for probs in preds:
-            d, prob = max(enumerate(probs), key=operator.itemgetter(1))
-            result.append(d)
+            result.append(self.get_processed_output(probs)[0])
 
         return result
 
     def show_predictions(self, preds):
         print("i", "real", "pred", "prob", sep="\t")
         for i, pred in enumerate(preds):
-            pred, prob = max(enumerate(pred), key=operator.itemgetter(1))
+            pred, prob = self.get_processed_output(pred)
             print(i, "n/a", pred, prob, sep="\t")
 
     def print_sample_predictions(self, Xy_test):
@@ -75,7 +80,5 @@ class TrainController:
         y_pred = self.model.predict(X_test[:10])
         print("i", "real", "pred", "prob", sep="\t")
         for i, pred in enumerate(y_pred):
-            pred, prob = max(enumerate(pred), key=operator.itemgetter(1))
-            assert isinstance(pred, (float, int))
-            pred = round(prob)
+            pred, prob = self.get_processed_output(pred)
             print(i, y_test[i], pred, prob, sep="\t")

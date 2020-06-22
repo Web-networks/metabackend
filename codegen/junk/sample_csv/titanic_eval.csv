@@ -1,0 +1,4 @@
+sex,n_siblings_spouses,parch,class,alone
+female,0,0,First,y
+female,1,2,Third,n
+male,0,0,Third,y

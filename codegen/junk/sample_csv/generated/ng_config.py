@@ -19,7 +19,7 @@ model = {
         ],
         "target": {"name": "survived", "type": "integer"},
     },
-    "output": {"type": "bool"},
+    "output": {"type": "bool", "target": "csv", "name": "survived_out"},
 }
 
 train_data_path = "train"

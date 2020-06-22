@@ -8,7 +8,7 @@
 {% macro parse_feature_fun(feature) %}
 | def parse_{{feature.name}}(val):
     <
-    | # print(f'debug: value {val} for feature {{feature.name}}')
+    | {# print(f'debug: value {val} for feature {{feature.name}}') #}
     {% if feature.type == 'enum' %}
         {% for enum_value in feature.enum %}
             | if val == {{repr(enum_value)}}:
@@ -21,7 +21,7 @@
     {% elif feature.type == 'integer' %}
         | return int(val)
     {% else %}
-        that feature is invalid
+        //) that feature is invalid
     {% endif %}
     >
 {% endmacro %}
@@ -34,7 +34,7 @@
 | # parse target {{model.input.target.name}}
 {{ parse_feature_fun(model.input.target) }}
 
-| def read_csv(filename):
+| def read_csv(filename, train_mode):
     <
     | df = pandas.read_csv(filename)
     {% macro make_feature(feature) %}
@@ -52,10 +52,31 @@
         {% endfor %}
     )))
     | assert X[0].shape == ng_config.input_shape
+    | if not train_mode:
+        < return X
+        >
     {{ make_feature(model.input.target) }}
     | y = np.array(list(feature_{{model.input.target.name}}))
-    | print(X, y)
     | return X, y
+    >
+
+| def add_result_column(source_filename, result):
+    <
+    | assert ng_config.model['output']['target'] == 'csv'
+    | i = -1
+    | out = ''
+    | for line in open(source_filename):
+        <
+        | line = line.strip()
+        | if i == -1:
+            < line += ',' + {{repr(model.output.name)}}
+        > else:
+            < line += ',' + str(result[i])
+            >
+        | out += line + '\n'
+        | i += 1
+        >
+    | return out
     >
 
 {% endif %}

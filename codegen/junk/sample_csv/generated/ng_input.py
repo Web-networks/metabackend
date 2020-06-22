@@ -30,7 +30,7 @@ class NeurogenIO:
         import util
 
         input_file = ng_config.train_data_path
-        data = csv_util.read_csv(input_file)
+        data = csv_util.read_csv(input_file, True)
         data = util.val_split(*data)
         data = (self.bite_sample(*data[0], sample_count), data[1])
         return data
@@ -38,5 +38,6 @@ class NeurogenIO:
     def read_eval_data(self, filenames):
         import csv_util
 
-        data = csv_util.read_csv(input_file)
+        assert len(filenames) == 1
+        data = csv_util.read_csv(filenames[0], False)
         return data
